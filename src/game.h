@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "board.h"
 #include <random>
 #include "SDL.h"
 #include "controller.h"
@@ -18,6 +19,8 @@ class Game {
  private:
   Snake snake;
   SDL_Point food;
+  Board board;
+  
 
   std::random_device dev;
   std::mt19937 engine;
