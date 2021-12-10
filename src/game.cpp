@@ -2,12 +2,12 @@
 #include <iostream>
 #include "SDL.h"
 
-Game::Game(std::size_t grid_width, std::size_t grid_height)
+Game::Game(const std::size_t grid_width, const std::size_t grid_height, const std::string boardFilePath)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
       random_h(0, static_cast<int>(grid_height - 1)),
-      board(grid_width, grid_height) {
+      board(boardFilePath, grid_width, grid_height) {
   PlaceFood();
 }
 

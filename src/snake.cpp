@@ -13,7 +13,7 @@ void Snake::Update(Board board) {
       static_cast<int>(head_y)};  // Capture the head's cell after updating.
 
   //  Check for collision with obstacle
-  for (auto obs : board.obstacles) {
+  for (auto obs : board.Obstacles()) {
     if (obs.x == current_cell.x && obs.y == current_cell.y) {
       alive = false;
     }
