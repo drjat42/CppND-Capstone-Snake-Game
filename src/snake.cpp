@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-void Snake::Update(Board board) {
+void Snake::Update(Board const &board) {
   SDL_Point prev_cell{
       static_cast<int>(head_x),
       static_cast<int>(

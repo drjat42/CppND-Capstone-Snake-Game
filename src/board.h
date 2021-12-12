@@ -1,23 +1,25 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include <string>
 #include <vector>
 #include "SDL.h"
 
 class Board {
 
 public:
-  Board(std::string const path, int const grid_width, int const grid_height);
-  std::vector<SDL_Point> Obstacles();
+  const std::vector<SDL_Point> & Obstacles() const;
+
+  // Rule of Five
+  Board();                                       // No-obstacles constructor
+  Board(std::vector<SDL_Point> obstacles);       // Constructor
+  ~Board();                                      // Destructor
+  Board(const Board &Other) = delete;            // Copy Constructor. Board is unique. Disallow copying.
+  Board &operator=(const Board &Other) = delete; // Copy Assignment Operator.  Board is unique.  Disallow copying.
+  Board(Board &&other);                          // Move constructor
+  Board &operator=(Board &&other);               // Move Assignment Operator
 
  private:
-  void ReadObstacles(std::string const path);
-
-  const std::string path;
-  std::vector<SDL_Point> obstacles;
-  const int grid_width;
-  const int grid_height;
+  std::vector<SDL_Point> _obstacles;
 };
 
 #endif

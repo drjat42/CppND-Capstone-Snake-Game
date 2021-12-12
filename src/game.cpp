@@ -2,16 +2,15 @@
 #include <iostream>
 #include "SDL.h"
 
-Game::Game(const std::size_t grid_width, const std::size_t grid_height, const std::string boardFilePath)
+Game::Game(const std::size_t grid_width, const std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)),
-      board(boardFilePath, grid_width, grid_height) {
+      random_h(0, static_cast<int>(grid_height - 1)) {
   PlaceFood();
 }
 
-void Game::Run(Controller const &controller, Renderer &renderer,
+void Game::Run(Controller const &controller, Renderer &renderer, BoardLoader &loader,
                std::size_t target_frame_duration) {
   Uint32 title_timestamp = SDL_GetTicks();
   Uint32 frame_start;
@@ -19,6 +18,8 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   Uint32 frame_duration;
   int frame_count = 0;
   bool running = true;
+
+  loader.StartBoardLoadingThread();
 
   while (running) {
     frame_start = SDL_GetTicks();

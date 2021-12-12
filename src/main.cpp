@@ -1,6 +1,8 @@
 #include <iostream>
 #include "controller.h"
+#include "file_board_loader.h"
 #include "game.h"
+#include "random_board_loader.h"
 #include "renderer.h"
 
 int main() {
@@ -12,10 +14,12 @@ int main() {
   constexpr std::size_t kGridHeight{32};
   const     std::string kBoardFilePath{"../data/board.txt"};
 
+  FileBoardLoader fileBoardLoader(kBoardFilePath);
+  RandomBoardLoader randomBoardLoader(15);
   Renderer renderer(kScreenWidth, kScreenHeight, kGridWidth, kGridHeight);
   Controller controller;
-  Game game(kGridWidth, kGridHeight, kBoardFilePath);
-  game.Run(controller, renderer, kMsPerFrame);
+  Game game(kGridWidth, kGridHeight);
+  game.Run(controller, renderer, fileBoardLoader, kMsPerFrame);
   std::cout << "Game has terminated successfully!\n";
   std::cout << "Score: " << game.GetScore() << "\n";
   std::cout << "Size: " << game.GetSize() << "\n";
