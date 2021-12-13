@@ -26,6 +26,7 @@ void Game::Run(Controller const &controller, Renderer &renderer, BoardLoader &lo
 
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
+    board = loader.getBoard();
     Update();
     renderer.Render(snake, board, food);
 

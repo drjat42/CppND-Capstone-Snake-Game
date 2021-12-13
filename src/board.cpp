@@ -5,6 +5,14 @@ Board::~Board() {}
 
 Board::Board(std::vector<SDL_Point> obstacles) : _obstacles(obstacles) {}
 
+Board::Board(const Board &other) {
+  _obstacles = other._obstacles;
+}                       
+
+Board & Board::operator=(const Board &other) {
+  _obstacles = other._obstacles;
+}
+
 Board::Board(Board &&other) {
   _obstacles = other._obstacles;
   other._obstacles.clear();

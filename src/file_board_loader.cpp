@@ -1,14 +1,28 @@
-
+#include <dirent.h>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include "file_board_loader.h"
 
 // BoardLoader that loads boards from files.
-// TODO: load from files in a directory
-//       remember last file name loaded, 
-//       rotate through alphabetically
-FileBoardLoader::FileBoardLoader(std::string path): _path(path) {}
+FileBoardLoader::FileBoardLoader(std::string boardDirectoryPath) {
+  DIR *directory = opendir(boardDirectoryPath.c_str());
+  struct dirent *file;
+  if (directory == nullptr) {
+    std::cerr << "Unable to open board directory path" << boardDirectoryPath << ". Please check the path to game boards." << std::endl;
+    return; 
+  }
+  while ((file  = readdir(directory)) != nullptr) {
+     if (file->d_type != DT_REG) {
+       continue; // Skip files that aren't boards like "." and "..""
+     }  
+     std::string filePath = boardDirectoryPath + "/" + file->d_name;
+     _boardPaths.push_back(filePath);
+  }
+  closedir(directory);
+}
+
+
 FileBoardLoader::~FileBoardLoader(){}
 Board FileBoardLoader::LoadBoard() {  
    std::string line;
@@ -16,17 +30,16 @@ Board FileBoardLoader::LoadBoard() {
   int y;
   char sep;
   std::vector<SDL_Point> obstacles;
-  std::cerr << "Reading obstacles from " << _path << std::endl;
-  std::ifstream filestream(_path);
+  std::ifstream filestream{_boardPaths[_nextBoardIndex]};
   if (filestream.is_open()) {
     while (std::getline(filestream, line)) {
       std::istringstream linestream(line);
       while (linestream >> x >> sep >> y) {
-        std::cerr << "Obstacle at " << x << ", " << y << std::endl;
         obstacles.push_back(SDL_Point{x,y});
       }
     }
   }
   Board board = Board(obstacles);
+  _nextBoardIndex = (_nextBoardIndex + 1) % _boardPaths.size();
   return std::move(board);  
 }

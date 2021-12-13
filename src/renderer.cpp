@@ -44,17 +44,17 @@ void Renderer::Render(Snake const snake, Board const &board, SDL_Point const &fo
   block.h = screen_height / grid_height;
 
   // Clear screen
-  SDL_SetRenderDrawColor(sdl_renderer, bgC.r, bgC.g, bgC.b, bgC.a);
+  SDL_SetRenderDrawColor(sdl_renderer, kBlack.r, kBlack.g, kBlack.b, kBlack.a);
   SDL_RenderClear(sdl_renderer);
 
   // Render food
-  SDL_SetRenderDrawColor(sdl_renderer, fC.r, fC.g, fC.b, fC.a);
+  SDL_SetRenderDrawColor(sdl_renderer, kYellow.r, kYellow.g, kYellow.b, kYellow.a);
   block.x = food.x * block.w;
   block.y = food.y * block.h;
   SDL_RenderFillRect(sdl_renderer, &block);
 
   // Render snake's body
-  SDL_SetRenderDrawColor(sdl_renderer, bC.r, bC.g, bC.b, bC.a);
+  SDL_SetRenderDrawColor(sdl_renderer, kWhite.r, kWhite.g, kWhite.b, kWhite.a);
   for (SDL_Point const &point : snake.body) {
     block.x = point.x * block.w;
     block.y = point.y * block.h;
@@ -62,7 +62,7 @@ void Renderer::Render(Snake const snake, Board const &board, SDL_Point const &fo
   }
   
   // Render obstacles
-  SDL_SetRenderDrawColor(sdl_renderer, oC.r, oC.g, oC.b, oC.a);
+  SDL_SetRenderDrawColor(sdl_renderer, kMagenta.r, kMagenta.g, kMagenta.b, kMagenta.a);
     for (SDL_Point const&point :  board.Obstacles()) {
     block.x = point.x * block.w;
     block.y = point.y * block.h;
@@ -73,9 +73,9 @@ void Renderer::Render(Snake const snake, Board const &board, SDL_Point const &fo
   block.x = static_cast<int>(snake.head_x) * block.w;
   block.y = static_cast<int>(snake.head_y) * block.h;
   if (snake.alive) {
-    SDL_SetRenderDrawColor(sdl_renderer, hC.r, hC.g, hC.b, hC.a);
+    SDL_SetRenderDrawColor(sdl_renderer, kBlue.r, kBlue.g, kBlue.b, kBlue.a);
   } else {
-    SDL_SetRenderDrawColor(sdl_renderer, dC.r, dC.g, dC.b, dC.a);
+    SDL_SetRenderDrawColor(sdl_renderer, kRed.r, kRed.g, kRed.b, kRed.a);
   }
   SDL_RenderFillRect(sdl_renderer, &block);
 

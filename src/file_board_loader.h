@@ -8,7 +8,7 @@
 class FileBoardLoader : public BoardLoader {
 
 public:
-  FileBoardLoader(std::string path);
+  FileBoardLoader(std::string boardDirectoryPath);
   ~FileBoardLoader();
 
 
@@ -17,8 +17,9 @@ protected:
  
 private:
   void ReadObstacles(std::string const path);
-
-  const std::string _path;
+  
+  int _nextBoardIndex;
+  std::vector<std::string> _boardPaths;
 
 };
 

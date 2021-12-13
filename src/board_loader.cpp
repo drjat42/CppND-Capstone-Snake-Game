@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <chrono>
+#include <iostream>
 #include <random>
 #include <thread>
 #include "board_loader.h"
@@ -71,6 +72,7 @@ void BoardLoader::LevelTimer()
          // Loading a board might be slow.
          // Don't hold a lock while loading.
         Board board = LoadBoard(); 
+
         std::unique_lock<std::mutex> uLock(_mutex);
         //_messages.send(std::move(board));
         _board = std::move(board);
