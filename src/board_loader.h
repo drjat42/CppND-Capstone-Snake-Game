@@ -3,6 +3,7 @@
 
 #include <condition_variable>
 #include <deque>
+#include <future>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -34,7 +35,7 @@ public:
   ~BoardLoader();
 
   // Start the thread that will load boards.
-  void StartBoardLoadingThread();
+  std::promise<void> StartBoardLoadingThread();
   const Board & getBoard();
   
 protected:
@@ -42,7 +43,8 @@ protected:
   virtual Board LoadBoard() = 0;
   
  private:
-  void  LevelTimer();
+  void  LevelTimer(std::future<void> ftrIsGameOver);
+
   std::mutex               _mutex;  // Control access to _board
   Board                    _board;
   MessageQueue<Board>      _messages;

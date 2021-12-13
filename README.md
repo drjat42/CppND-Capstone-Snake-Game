@@ -58,7 +58,7 @@ This work is licensed under a
 1. BoardLoader object runs in its own thread.  Every 10 - 15 seconds the BoardLoader 
    - wakes, checks a promise to see if the game has ended (the snake is not alive) and exits its thread if so.
    - creates a new board
-   - sends a to the `Game` object via a shared channel (unique pointer?)
+   -XXXX grabs the lock and updates the shared board variable
    - goes back to sleep
 1. Game thread ? spawns the BoardLoader thread with a promise.
    - Game thread fulfills the promise when the snake dies and then joins the BoardLoader before exiting.
@@ -66,6 +66,13 @@ This work is licensed under a
    - `RandomBoardLoader` creates a board by creating 10 obstacle blocks at random locations.  
    - `FileBoardLoader` loads boards from the `data` directory by cycling through all the files in that directory in alphabetical order.
 
+#TODOs/Ideas
+1. Done. Implement promise to detect when snake dies so BoardLoader thread can exit.
+1. Done. Command line argmument to control which board loader to use.
+1. More boards.
+1. Ensure boards don't intersect snake when loaded by removing those obstacles from the board the first time it's loaded.
+1. Use smart pointers to move board from loader to game maybe with channel
+1. Bump the score every time a new board or output the number of boards loaded on the exit screen is loaded which means detecting a new board somehow.
 
 # The README indicates which rubric points are addressed. The README also indicates where in the code (i.e. files and line numbers) that the rubric points are addressed.
 

@@ -30,7 +30,7 @@ class Game {
   int score{0};
 
   void PlaceFood();
-  void Update();
+  bool Update();
 };
 
 #endif

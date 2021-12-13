@@ -38,9 +38,12 @@ BoardLoader::~BoardLoader()
     });
 }
 
-void BoardLoader::StartBoardLoadingThread()
+std::promise<void> BoardLoader::StartBoardLoadingThread()
 {
-    _threads.emplace_back(std::thread(&BoardLoader::LevelTimer, this));
+    std::promise<void> prmsIsGameOver;
+    std::future<void> ftrIsGameOver = prmsIsGameOver.get_future();
+    _threads.emplace_back(std::thread(&BoardLoader::LevelTimer, this, std::move(ftrIsGameOver)));
+    return std::move(prmsIsGameOver);
 }
 
 /*
@@ -48,7 +51,7 @@ void BoardLoader::StartBoardLoadingThread()
  If so, exit.
  If not load a new board and send it to the game.
 */
-void BoardLoader::LevelTimer()
+void BoardLoader::LevelTimer(std::future<void> ftrIsGameOver)
 {
     srand (time(NULL));
     int levelLengthMS;
@@ -67,7 +70,10 @@ void BoardLoader::LevelTimer()
             now =  std::chrono::steady_clock::now();
         }
 
-        // TODO: if snake is dead, exit.
+        if (ftrIsGameOver.wait_for(std::chrono::seconds(0))  == std::future_status::ready) {
+            // Game is over.
+            break;
+        }
         
          // Loading a board might be slow.
          // Don't hold a lock while loading.

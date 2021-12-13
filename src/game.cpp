@@ -1,4 +1,5 @@
 #include "game.h"
+#include <future>
 #include <iostream>
 #include "SDL.h"
 
@@ -19,7 +20,8 @@ void Game::Run(Controller const &controller, Renderer &renderer, BoardLoader &lo
   int frame_count = 0;
   bool running = true;
 
-  loader.StartBoardLoadingThread();
+  bool promiseHasBeenSet = false;  // Set the promise just once.
+  std::promise<void> prmsIsGameOver = loader.StartBoardLoadingThread();
 
   while (running) {
     frame_start = SDL_GetTicks();
@@ -27,7 +29,12 @@ void Game::Run(Controller const &controller, Renderer &renderer, BoardLoader &lo
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     board = loader.getBoard();
-    Update();
+    bool isGameOver = !Update();
+    if (isGameOver && !promiseHasBeenSet) {
+      // Game is over.  Tell the board loader thread to stop.
+      prmsIsGameOver.set_value();
+      promiseHasBeenSet = true;
+    }
     renderer.Render(snake, board, food);
 
     frame_end = SDL_GetTicks();
@@ -68,8 +75,8 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::Update() {
-  if (!snake.alive) return;
+bool Game::Update() {
+  if (!snake.alive) return false;
 
   snake.Update(board);
 
@@ -84,6 +91,8 @@ void Game::Update() {
     snake.GrowBody();
     snake.speed += 0.02;
   }
+
+  return snake.alive;
 }
 
 int Game::GetScore() const { return score; }
