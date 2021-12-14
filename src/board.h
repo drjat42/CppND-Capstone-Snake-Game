@@ -7,7 +7,7 @@
 class Board {
 
 public:
-  const std::vector<SDL_Point> & Obstacles() const;
+  const std::vector<SDL_Point> & Obstacles() const;  // Getter
 
   // Rule of Five
   Board();                                       // Default, no-obstacles constructor

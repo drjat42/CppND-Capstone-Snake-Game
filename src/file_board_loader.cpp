@@ -4,7 +4,12 @@
 #include <iostream>
 #include "file_board_loader.h"
 
-// BoardLoader that loads boards from files.
+/* 
+* BoardLoader that loads boards from files. 
+* Loads the paths to all files in the directory named by  boardDirectoryPath 
+* into _boardPaths.  
+* _nextBoardIndex is implicitly set to 0.
+*/
 FileBoardLoader::FileBoardLoader(std::string boardDirectoryPath) {
   DIR *directory = opendir(boardDirectoryPath.c_str());
   struct dirent *file;
@@ -22,8 +27,13 @@ FileBoardLoader::FileBoardLoader(std::string boardDirectoryPath) {
   closedir(directory);
 }
 
-
+/* Destructor */
 FileBoardLoader::~FileBoardLoader(){}
+
+/* 
+* Load the next board from disk.   
+* Increment the next board index.
+*/
 Board FileBoardLoader::LoadBoard() {  
    std::string line;
   int x;
@@ -41,5 +51,5 @@ Board FileBoardLoader::LoadBoard() {
   }
   Board board = Board(obstacles);
   _nextBoardIndex = (_nextBoardIndex + 1) % _boardPaths.size();
-  return std::move(board);  
+  return board;  
 }

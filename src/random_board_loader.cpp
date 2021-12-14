@@ -2,12 +2,14 @@
 #include <random>
 #include "random_board_loader.h"
 
-// BoardLoader that makes boards with obstacles at random locations.
+/* BoardLoader that makes boards with obstacles at random locations. */
 RandomBoardLoader::RandomBoardLoader(size_t gridWidth, size_t gridHeight, size_t maxObstacles) : 
   _gridWidth(gridWidth), _gridHeight(gridHeight), _maxObstacles(maxObstacles) {}
 
+/* Destructor */
 RandomBoardLoader::~RandomBoardLoader() {}
 
+/* Create a board of randomly located obstacles. */
 Board RandomBoardLoader::LoadBoard(){  
   std::vector<SDL_Point> obstacles;
   srand (time(NULL));

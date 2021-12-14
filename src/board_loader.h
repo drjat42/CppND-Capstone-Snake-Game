@@ -9,23 +9,8 @@
 #include <vector>
 #include "board.h"
 
-constexpr int MIN_BOARD_MS_k = 10000; // Minimum number of milliseconds between successive boards
-constexpr int MAX_BOARD_MS_k = 15000; // Maximum number of milliseconds between successive boards
-
-// MessageQueue from my Concurrent Traffic Simulation TrafficLight implementation
-template <class T>
-class MessageQueue
-{
-public:
-    T receive();
-    void send(T &&msg);
-
-private:
-    std::deque<T> _queue;
-    std::condition_variable _condition;
-    std::mutex _mutex;    
-};
-
+constexpr int kMIN_BOARD_MS = 10000; // Minimum number of milliseconds between successive boards
+constexpr int kMAX_BOARD_MS = 15000; // Maximum number of milliseconds between successive boards
 
 // Abstract class to load boards at random intervals and send them to the game until the game ends.
 class BoardLoader {
@@ -36,6 +21,8 @@ public:
 
   // Start the thread that will load boards.
   std::promise<void> StartBoardLoadingThread();
+
+  // Getter
   const Board & getBoard();
   
 protected:
@@ -43,11 +30,11 @@ protected:
   virtual Board LoadBoard() = 0;
   
  private:
+  // Load boards at random intervals 
   void  LevelTimer(std::future<void> ftrIsGameOver);
 
   std::mutex               _mutex;  // Control access to _board
   Board                    _board;
-  MessageQueue<Board>      _messages;
   std::vector<std::thread> _threads; 
 };
 
