@@ -71,6 +71,11 @@ This work is licensed under a
 1. Ensure boards don't intersect snake when loaded by removing those obstacles from the board the first time it's loaded.
 1. Use smart pointers to move board from loader to game maybe with channel
 1. Bump the score every time a new board or output the number of boards loaded on the exit screen is loaded which means detecting a new board somehow.
+1. Proper producer / consumer pattern for getting boards to the game instead of overwriting the previous board.  This should enable detection of the installation of a new board.
+1. Use pointers for BoardLoaders in main so that subclassing works more elegantly and only one loader is actually created.
+1. Give boards names in addition to obstacles.  Display board name at top of screen. Show final board name on exit.
+1. When loading a new board, if it intersects the snake body, shorten the snake and turn the tail into obstacles.  
+1. Cary the snake tails forward between boards.
 
 ## Rubric Points Addressed
 
