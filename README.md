@@ -133,6 +133,7 @@ This work is licensed under a
   - `FileBoardLoader` and `RandomBoardLoader`provide the concrete implementations of the `LoadBoard` method.
 
 - "**Overloaded functions allow the same function to operate on different parameters.** One function is overloaded with different signatures for the same function name."
+  - The assignment operator= is overloaded for class `Board` to implement copy and move semantics.
 
 - "**Derived class functions override virtual base class functions.** One member function in an inherited class overrides a virtual base class member function."
   - `FileBoardLoader::LoadBoard` and `RandomBoardLoader::LoadBoard` override pure virtual function `BoardLoader::LoadBoard`. 
