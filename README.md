@@ -50,32 +50,32 @@ This work is licensed under a
 1. I have extended the Snake game for my Capstone project.
 1. Collected Hex values for colors into named constants in `Renderer.h` becuase it's not 1980.  Come on, man! 
 1. Added obstacles to the grid that end the game if the snake head collides with one. 
-1. Obstacles are stored in `Board` objects.
-   - Obstacles are stored in private member vector accesses via a getter method.
+1. `Board` objects contain obstacles.
+   - Obstacles are stored in private member vector accessed via a getter method.
+   - Board also have private names and bonuses.
    - `Game::Update` uses the board to decide if the snake has struck an obstacle
-   - `Renderer::Render` uses the board to draw the obstacles
+   - `Renderer::Render` uses the board to draw the obstacles and the board name.
    - `Board` implements the rule of 5.
+   - The name of the current board is displayed in the window title.
+   - The bonus is added to the score as soon as a board is loaded, even if it immediately kills the snake.
+   - The name of the final board is displayed on game exit.
 1. A `BoardLoader` object runs in its own thread.  Every 10 - 15 seconds the BoardLoader 
    - checks a future to see if the game has ended (the snake is not alive) and exits its thread if so.
    - loads/creates a new board
-   - `BoardLoader::LevelTimer` grabs the lock and updates the shared board variable
+   - `BoardLoader::LevelTimer` sends each board to the main thread via a parameterized `MessageQueue`.
 1. `Game::Run` calls `BoardLoader::StartBoardLoadingThread` to spawn the `BoardLoader`thread and receives a promise.
    - Game thread fulfills the promise when the snake dies and then joins the `BoardLoader` thread before exiting.
 1. There are two implementations of the abstract class`BoardLoader`that inherit the above behavior.
-   - `RandomBoardLoader` creates a board by creating obstacle blocks at random locations.  
-   - `FileBoardLoader` loads boards from the `data` directory by cycling through all the files in that directory in alphabetical order.
+   - `RandomBoardLoader` creates a board by creating obstacle blocks at random locations.  It names boards sequentially.  The board level bonus also increases sequentially.
+   - `FileBoardLoader` loads boards from the `data` directory by cycling through all the files in that directory in alphabetical order.  The name of the file is the name of the board.  The board level bonus cycles from 0 to the number of distinct boards.
    - A commandline argument controls which `BoardLoader` implementation is used.  "random" indicates to use the `RandomBoardLoader`.  "file" (or nothing) indicates to use the `FileBoardLoader`.  Any other commandline arguement(s) will produce a usage message.
 
-#Ideas/Nice to haves
+#Future Ideas/Nice to haves
 1. More boards.
-1. Ensure boards don't intersect snake when loaded by removing those obstacles from the board the first time it's loaded.
-1. Use smart pointers to move board from loader to game maybe with channel
-1. Bump the score every time a new board or output the number of boards loaded on the exit screen is loaded which means detecting a new board somehow.
-1. Proper producer / consumer pattern for getting boards to the game instead of overwriting the previous board.  This should enable detection of the installation of a new board.
-1. Use pointers for BoardLoaders in main so that subclassing works more elegantly and only one loader is actually created.
-1. Give boards names in addition to obstacles.  Display board name at top of screen. Show final board name on exit.
 1. When loading a new board, if it intersects the snake body, shorten the snake and turn the tail into obstacles.  
-1. Cary the snake tails forward between boards.
+1. Cary the snake tails forward between boards as additional obstacles.
+1. Use smart pointers to move board from loader to game maybe with channel.
+1. Use pointers for BoardLoaders in main so that subclassing works more elegantly and only one loader is actually created.
 
 ## Rubric Points Addressed
 
@@ -93,34 +93,38 @@ This work is licensed under a
 - "**The project demonstrates an understanding of C++ functions and control structures.** A variety of control structures are used in the project. The project code is clearly organized into functions."
   - The `Board`, `BoardLoader`, `FileBoardLoader`, and `RandomBoardLoader` classes are each organzied into member functions such as constructors, `Board::Obstacles`, `BoardLoader::StartBoardLoadingThread`, and`FileBoardLoader::LoadBoard`.  Control structures used include `while` and `for` loops, `if` blocks, function calls, and return statements.
 
-- "**The project reads data from a file and process the data, or the program writes data to a file.** The project reads data from an external file or writes data to a file as part of the necessary operation of the program."
-  - The default FileBoardLoader reads the `data` directory to find board files and loads each file in turn.  It parses the file contents to construct each board and display the obstacles specified in the file.
+- "**The project reads data from a file and processes the data, or the program writes data to a file.** The project reads data from an external file or writes data to a file as part of the necessary operation of the program."
+  - The default FileBoardLoader reads the `data` directory to find board files and loads each file in turn.  It parses the file contents to construct each board and display the obstacles specified in the file.  The name of each file is used as the name of the board.
 
 - "**The project accepts user input and processes the input.** The project accepts input from a user as part of the necessary operation of the program."
   - The original Snake Game repo does this.  I did not particularly extend this functionality except in that I changed how the snake interacts with the board obstacles.
 
 - "**The project uses Object Oriented Programming techniques.** The project code is organized into classes with class attributes to hold the data, and class methods to perform tasks."
   -  Added classes inlcude `Board`, `BoardLoader`, `FileBoardLoader`, and `RandomBoardLoader`.  
-  -  `Board` is essentially a struct for obstacles and board name with no real logic.  
+  -  `Board` is essentially a struct for obstacles, bonus, and board name with no real logic.  
   -  `BoardLoader` is an abstract class declaring four methods.  `StartBoardLoadingThread` begins the timer to load boards. `LevelTimer` iterates loading boards and sleeping for random intervals.  There is also a thread safe getter `getBoard`.  In additon, `BoardLoader::LoadBoard` is a pure virtual function implemented by the concrete derived classes `FileBoardLoader` and `RandomBoardLoader`.  
+  -  `MessageQueue` is an auxilliary class in the `BoardLoader.cpp` and header files that safely sends data from one thread to the other.
   - `FileBoardLoader` cycles through all the files in the `data` directory, reading each in turn, to load a board.
   - `RandomBoardLoader` generates a number of random obstacles to generate a board.
 
 - "**Classes use appropriate access specifiers for class members.** All class data members are explicitly specified as public, protected, or private."
-  - `Board` has private data members `name` and `_obstacles`.
-  - `BoardLoader` has private data members `_mutex`, `_board`, and `_threads`.
-  - `FileBoardLaoder` has private data members `_nextBoardIndex` and `_boardPaths`.
+  - `Board` has private data members `bonus`, `name` and `_obstacles`.
+  - `BoardLoader` has private data members `_minLevelMS`, `_maxLevleMS`, `_board`, and `_threads`.
+  - `FileBoardLaoder` has private data members `_nextBoardIndex`, `_boardDirectoryPath`, and `_boardNames`.
   - `RandomBoardLoader` has private data members `_gridWidth`, `gridHeight`, and `_maxObstacles`.
 
 - "**Class constructors utilize member initialization lists.** All class members that are set to argument values are initialized through member initialization lists."
-  - `Board`and `RandomBoardLoader` use initializer lists. `FileBoardLoader` reads file names from disk to initialize its member variables.  Member variables of `BoardLoader` only need default initialization.
+  - `Board`and `RandomBoardLoader`, and `FileBoardLoader` use initialization lists.
+  - `RandomBoardLoader` and `FileBoardLoader` invoke the base class constructor in their initialization lists.
+  - `FileBoardLoader` reads file names from disk to initialize its member variables.  Member variables of `BoardLoader` only need default initialization.
 
 - "**Classes abstract implementation details from their interfaces.** All class member functions document their effects, either through function names, comments, or formal documentation. Member functions do not change program state in undocumented ways."
   - All classes and methods are documented. 
 
 - "**Classes encapsulate behavior.** Appropriate data and functions are grouped into classes. Member data that is subject to an invariant is hidden from the user. State is accessed via member functions."
-  - `Board` is a struct for the holding state of a board.  `Obstacles` are accessed via a getter.
-  - `BoardLoader` encapsulates the timer thread for and abstracts the notion of loading boards asynchronously. Boards are access via a threadsafe getter.
+  - `Board` is a struct for the holding state of a board.  `Obstacles`, `Name`, and `Bonus` are accessed via getters.
+  - `BoardLoader` encapsulates the timer thread for and abstracts the notion of loading boards asynchronously. Boards are access via a threadsafe getter. 
+  - `MessageQueue` encapsulates passing messages between threads safely.
   - `FileBoardLoader` handles loading boards from files.
   - `RandomBoardLoader` creates random boards.
 
@@ -131,8 +135,10 @@ This work is licensed under a
 - "**Overloaded functions allow the same function to operate on different parameters.** One function is overloaded with different signatures for the same function name."
 
 - "**Derived class functions override virtual base class functions.** One member function in an inherited class overrides a virtual base class member function."
+  - `FileBoardLoader::LoadBoard` and `RandomBoardLoader::LoadBoard` override pure virtual function `BoardLoader::LoadBoard`. 
 
 - "**Templates generalize functions in the project.** One function is declared with a template that allows it to accept a generic parameter."
+  - `MessageQueue::Send` and `Message::Receive` are templatized functions.
 
 - "**The project makes use of references in function declarations.** At least two variables are defined as references, or two functions use pass-by-reference in the project code."
   - `Snake::Update` and `Renderer::Render` parameters have been extended to include a reference to a `Board`.
@@ -147,7 +153,7 @@ This work is licensed under a
 
 - "**The project uses move semantics to move data, instead of copying it, where possible.**  For classes with move constructors, the project returns objects of that class by value, and relies on the move constructor, instead of copying the object."
   - `FileBoardLoader::LoadBoard` and `RandomBoardLoader::LoadBoard` return `Boards` by value.
-  - `BoardLoader::LevelTimer` moves the returned `Board` into a member variable.
+  - `BoardLoader::LevelTimer` moves the returned `Board` into the `MessageQueue`.
 
 - "**The project uses smart pointers instead of raw pointers.** The project uses at least one smart pointer: unique_ptr, shared_ptr, or weak_ptr. The project does not use raw pointers."
 
@@ -158,9 +164,10 @@ This work is licensed under a
   - `BoardLoader::LevelTimer` polls a future to determine when the game has ended and the board loading thread should exit.  `Game::Run` sets the promise when the snake dies.
 
 - "**A mutex or lock is used in the project.** A mutex or lock (e.g. std::lock_guard or `std::unique_lock) is used to protect data that is shared across multiple threads in the project code."
-  - `BoardLoader::LevelTimer` uses a `std::unique_lock` to overwrite the shared `_board` variable when a new board has been loaded.  `BoardLoader::getBoard` uses a `std::lock_guard` and the same `mutex` to read the shared variable when the game is ready to update the board.
+  - `MessageQueue::recieve` uses a `std::unique_lock` to dequeue messages.  `MessageQueue::send` uses a `std::lock_guard` and the same `mutex` to enqueu messages in the shared `queue` variable.
 
 - "**A condition variable is used in the project.** A std::condition_variable is used in the project code to synchronize thread execution."
+  - `MessageQueue` uses a condition varialbe to synchronize between the `send` and `receive` methods.  (Sort of but not really, as the receive only blocks for 2 microseconds and then returns an empty optional if no message is ready.)
 
 
 
