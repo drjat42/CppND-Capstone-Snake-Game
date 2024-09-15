@@ -1,6 +1,7 @@
 #ifndef SNAKE_H
 #define SNAKE_H
 
+#include "board.h"
 #include <vector>
 #include "SDL.h"
 
@@ -14,7 +15,7 @@ class Snake {
         head_x(grid_width / 2),
         head_y(grid_height / 2) {}
 
-  void Update();
+  void Update(Board const &board);
 
   void GrowBody();
   bool SnakeCell(int x, int y);

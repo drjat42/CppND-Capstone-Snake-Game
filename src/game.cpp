@@ -1,8 +1,9 @@
 #include "game.h"
+#include <future>
 #include <iostream>
 #include "SDL.h"
 
-Game::Game(std::size_t grid_width, std::size_t grid_height)
+Game::Game(const std::size_t grid_width, const std::size_t grid_height)
     : snake(grid_width, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width - 1)),
@@ -10,7 +11,7 @@ Game::Game(std::size_t grid_width, std::size_t grid_height)
   PlaceFood();
 }
 
-void Game::Run(Controller const &controller, Renderer &renderer,
+void Game::Run(Controller const &controller, Renderer &renderer, BoardLoader &loader,
                std::size_t target_frame_duration) {
   Uint32 title_timestamp = SDL_GetTicks();
   Uint32 frame_start;
@@ -19,13 +20,22 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   int frame_count = 0;
   bool running = true;
 
+  bool promiseHasBeenSet = false;  // Set the promise just once.
+  std::promise<void> prmsIsGameOver = loader.StartBoardLoadingThread();
+
   while (running) {
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
-    Update();
-    renderer.Render(snake, food);
+    board = loader.getBoard();
+    bool isGameOver = !Update();
+    if (isGameOver && !promiseHasBeenSet) {
+      // Game is over.  Tell the board loader thread to stop.
+      prmsIsGameOver.set_value();
+      promiseHasBeenSet = true;
+    }
+    renderer.Render(snake, board, food);
 
     frame_end = SDL_GetTicks();
 
@@ -65,10 +75,10 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::Update() {
-  if (!snake.alive) return;
+bool Game::Update() {
+  if (!snake.alive) return false;
 
-  snake.Update();
+  snake.Update(board);
 
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);
@@ -81,6 +91,8 @@ void Game::Update() {
     snake.GrowBody();
     snake.speed += 0.02;
   }
+
+  return snake.alive;
 }
 
 int Game::GetScore() const { return score; }

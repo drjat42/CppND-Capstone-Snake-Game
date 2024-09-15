@@ -2,7 +2,7 @@
 #include <cmath>
 #include <iostream>
 
-void Snake::Update() {
+void Snake::Update(Board const &board) {
   SDL_Point prev_cell{
       static_cast<int>(head_x),
       static_cast<int>(
@@ -11,6 +11,13 @@ void Snake::Update() {
   SDL_Point current_cell{
       static_cast<int>(head_x),
       static_cast<int>(head_y)};  // Capture the head's cell after updating.
+
+  //  Check for collision with obstacle
+  for (auto obs : board.Obstacles()) {
+    if (obs.x == current_cell.x && obs.y == current_cell.y) {
+      alive = false;
+    }
+  }
 
   // Update all of the body vector items if the snake head has moved to a new
   // cell.
